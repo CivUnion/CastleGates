@@ -5,7 +5,6 @@
 
 package com.aleksey.castlegates.command;
 
-import com.aleksey.castlegates.engine.CastleGatesManager;
 import com.aleksey.castlegates.types.TimerMode;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

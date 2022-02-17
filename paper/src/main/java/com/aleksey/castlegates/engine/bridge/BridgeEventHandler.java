@@ -6,7 +6,6 @@ package com.aleksey.castlegates.engine.bridge;
 
 import com.aleksey.castlegates.CastleGates;
 import com.aleksey.castlegates.config.ConfigManager;
-import com.aleksey.castlegates.database.SqlDatabase;
 import com.aleksey.castlegates.engine.PlayerStateManager;
 import com.aleksey.castlegates.engine.StorageManager;
 import com.aleksey.castlegates.types.*;
@@ -28,12 +27,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class BridgeEventHandler {
     private static class FindGearResult {

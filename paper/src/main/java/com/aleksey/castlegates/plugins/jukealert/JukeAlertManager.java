@@ -1,7 +1,6 @@
 package com.aleksey.castlegates.plugins.jukealert;
 
 import com.aleksey.castlegates.CastleGates;
-import com.aleksey.castlegates.plugins.citadel.ICitadel;
 import com.untamedears.JukeAlert.model.Snitch;
 import org.bukkit.Location;
 

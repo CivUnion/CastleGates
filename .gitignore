@@ -102,6 +102,9 @@ local.properties
 # Gradle:
 .idea/gradle.xml
 .idea/libraries
+.gradle
+build
+paper/.gradle
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
