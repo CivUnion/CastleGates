@@ -5,12 +5,28 @@
 
 package com.aleksey.castlegates.engine.bridge;
 
-import java.util.*;
-
+import com.aleksey.castlegates.CastleGates;
 import com.aleksey.castlegates.config.ConfigManager;
 import com.aleksey.castlegates.engine.StorageManager;
+import com.aleksey.castlegates.events.CastleGatesDrawGateEvent;
+import com.aleksey.castlegates.events.CastleGatesUndrawGateEvent;
 import com.aleksey.castlegates.plugins.citadel.ICitadel;
-import com.aleksey.castlegates.types.*;
+import com.aleksey.castlegates.plugins.citadel.ICitadelManager;
+import com.aleksey.castlegates.types.BlockCoord;
+import com.aleksey.castlegates.types.BlockState;
+import com.aleksey.castlegates.types.Gearblock;
+import com.aleksey.castlegates.types.GearblockLink;
+import com.aleksey.castlegates.types.PowerResult;
+import com.aleksey.castlegates.types.TimerBatch;
+import com.aleksey.castlegates.types.TimerLink;
+import com.aleksey.castlegates.types.TimerMode;
+import com.aleksey.castlegates.utils.Helper;
+import com.aleksey.castlegates.utils.TimerWorker;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,14 +34,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-
-import com.aleksey.castlegates.CastleGates;
-import com.aleksey.castlegates.DeprecatedMethods;
-import com.aleksey.castlegates.plugins.citadel.ICitadelManager;
-import com.aleksey.castlegates.events.CastleGatesDrawGateEvent;
-import com.aleksey.castlegates.events.CastleGatesUndrawGateEvent;
-import com.aleksey.castlegates.utils.Helper;
-import com.aleksey.castlegates.utils.TimerWorker;
 
 public class BridgeManager {
 	public static final BlockFace[] faces = new BlockFace[] {
@@ -665,7 +673,6 @@ public class BridgeManager {
 			locations.add(location);
 
 			// stage world changes
-			states.add(DeprecatedMethods.toCraftBukkit(block, blockState));
 			citadelManager.createReinforcement(blockState.reinforcement, location);
 
 			x1 += blockFace.getModX();
@@ -675,9 +682,6 @@ public class BridgeManager {
 		Bukkit.getPluginManager().callEvent(new CastleGatesUndrawGateEvent(locations));
 		
 		// post-event, commit world changes.
-		for (org.bukkit.block.BlockState state : states) {
-			DeprecatedMethods.commitCraftBukkit(state);
-		}
 
 		this.storage.setLinkBlocks(link, null);
 	}

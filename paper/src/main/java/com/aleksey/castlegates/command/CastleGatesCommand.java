@@ -15,7 +15,6 @@ import com.aleksey.castlegates.CastleGates;
 import com.aleksey.castlegates.types.CommandMode;
 import com.aleksey.castlegates.types.TimerOperation;
 import com.aleksey.castlegates.utils.Helper;
-import com.google.common.base.Objects;
 
 public class CastleGatesCommand {
 	public static boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

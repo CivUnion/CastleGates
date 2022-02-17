@@ -21,7 +21,7 @@ public class BlockState {
 	}
 
 	public BlockState(Block block) {
-		this.id = DeprecatedMethods.getTypeId(block);
+		this.id = block.getType().getId();
 		this.meta = DeprecatedMethods.getMeta(block);
 	}
 

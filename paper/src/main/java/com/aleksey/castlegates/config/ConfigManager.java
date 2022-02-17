@@ -5,21 +5,18 @@
 
 package com.aleksey.castlegates.config;
 
+import com.aleksey.castlegates.types.TimerOperation;
+import com.aleksey.castlegates.utils.Helper;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
-
-import com.aleksey.castlegates.DeprecatedMethods;
-import com.aleksey.castlegates.types.TimerOperation;
-import com.aleksey.castlegates.utils.Helper;
 
 public class ConfigManager {
 	public static class Database {
@@ -306,7 +303,7 @@ public class ConfigManager {
     		if(material == null || material.length() == 0) continue;
 
     		if(Character.isDigit(material.charAt(0))) {
-    			result.add(DeprecatedMethods.getMaterial(Integer.parseInt(material)));
+    			result.add(Material.valueOf(material));
     		} else {
     			result.add(Material.getMaterial(material.toUpperCase()));
     		}

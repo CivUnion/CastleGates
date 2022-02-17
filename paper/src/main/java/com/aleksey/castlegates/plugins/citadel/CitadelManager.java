@@ -5,28 +5,24 @@
 
 package com.aleksey.castlegates.plugins.citadel;
 
+import com.aleksey.castlegates.CastleGates;
+import com.aleksey.castlegates.database.ReinforcementInfo;
+import com.aleksey.castlegates.utils.Helper;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import vg.civcraft.mc.citadel.Citadel;
-import vg.civcraft.mc.citadel.reinforcement.PlayerReinforcement;
-import vg.civcraft.mc.citadel.reinforcement.Reinforcement;
+import vg.civcraft.mc.citadel.model.Reinforcement;
 import vg.civcraft.mc.namelayer.GroupManager;
 import vg.civcraft.mc.namelayer.group.Group;
-
-import com.aleksey.castlegates.CastleGates;
-import com.aleksey.castlegates.DeprecatedMethods;
-import com.aleksey.castlegates.database.ReinforcementInfo;
-import com.aleksey.castlegates.utils.Helper;
+import vg.civcraft.mc.namelayer.permission.PermissionType;
 
 public class CitadelManager extends Thread implements ICitadelManager, Runnable {
 	private static class UpdatedReinforcement {
@@ -59,20 +55,20 @@ public class CitadelManager extends Thread implements ICitadelManager, Runnable 
 	}
 
 	public ICitadel getCitadel(List<Player> players, Location loc) {
-		PlayerReinforcement playerRein = null;
+		Reinforcement playerRein = null;
     	boolean hasAccess = false;
     	boolean useJukeAlert = false;
 
-		Reinforcement rein = Citadel.getReinforcementManager().getReinforcement(loc);
+		Reinforcement rein = Citadel.getInstance().getReinforcementManager().getReinforcement(loc);
 
-		hasAccess = rein == null || !(rein instanceof PlayerReinforcement);
+		hasAccess = rein == null || !(rein instanceof Reinforcement);
 
 		if(!hasAccess) {
-			playerRein = (PlayerReinforcement)rein;
+			playerRein = (Reinforcement)rein;
 
 			if (players != null && players.size() > 0) {
 				for (Player player : players) {
-					if (playerRein.canAccessDoors(player) || player.hasPermission("citadel.admin")) {
+					if (playerRein.hasPermission(player, PermissionType.getPermission("DOORS")) || player.hasPermission("citadel.admin")) {
 						hasAccess = true;
 						break;
 					}
@@ -91,52 +87,51 @@ public class CitadelManager extends Thread implements ICitadelManager, Runnable 
 	}
 
 	public boolean isReinforced(Location loc) {
-		Reinforcement rein = Citadel.getReinforcementManager().getReinforcement(loc);
+		Reinforcement rein = Citadel.getInstance().getReinforcementManager().getReinforcement(loc);
 
-		return rein != null && (rein instanceof PlayerReinforcement);
+		return rein != null && (rein instanceof Reinforcement);
 	}
 
 	public boolean canBypass(Player player, Location loc) {
-		Reinforcement rein = Citadel.getReinforcementManager().getReinforcement(loc);
+		Reinforcement rein = Citadel.getInstance().getReinforcementManager().getReinforcement(loc);
 
-		if(rein == null || !(rein instanceof PlayerReinforcement)) return true;
+		if(rein == null || !(rein instanceof Reinforcement)) return true;
 
 		if(player == null) return false;
 
-		PlayerReinforcement playerRein = (PlayerReinforcement)rein;
+		Reinforcement playerRein = (Reinforcement)rein;
 
-		return playerRein.canBypass(player)
+		return playerRein.hasPermission(player, PermissionType.getPermission("BYPASS"))
 			|| player.hasPermission("citadel.admin.bypassmode");
 	}
 
 	public boolean canViewInformation(Player player, Location loc) {
-		Reinforcement rein = Citadel.getReinforcementManager().getReinforcement(loc);
+		Reinforcement rein = Citadel.getInstance().getReinforcementManager().getReinforcement(loc);
 
-		if(rein == null || !(rein instanceof PlayerReinforcement)) return true;
+		if(rein == null || !(rein instanceof Reinforcement)) return true;
 
 		if(player == null) return false;
 
-		PlayerReinforcement playerRein = (PlayerReinforcement)rein;
+		Reinforcement playerRein = (Reinforcement)rein;
 
-		return playerRein.canViewInformation(player)
+		return playerRein.hasPermission(player, PermissionType.getPermission("INFO"))
 			|| player.hasPermission("citadel.admin.ctinfodetails");
 	}
 
 	public ReinforcementInfo removeReinforcement(Location loc) {
-		Reinforcement rein = Citadel.getReinforcementManager().getReinforcement(loc);
+		Reinforcement rein = Citadel.getInstance().getReinforcementManager().getReinforcement(loc);
 
-		if(rein == null || !(rein instanceof PlayerReinforcement)) return null;
+		if(rein == null || !(rein instanceof Reinforcement)) return null;
 
-		PlayerReinforcement playerRein = (PlayerReinforcement)rein;
+		Reinforcement playerRein = (Reinforcement)rein;
 
 		ReinforcementInfo info = new ReinforcementInfo();
-		info.material_id = DeprecatedMethods.getMaterialId(playerRein.getMaterial());
-		info.durability = playerRein.getDurability();
+		info.material = playerRein.getType().getItem().getType();
 		info.insecure = playerRein.isInsecure();
 		info.group_id = playerRein.getGroupId();
-		info.maturation_time = playerRein.getMaturationTime();
-		info.lore = Helper.getLore(playerRein.getStackRepresentation());
-		info.acid_time = playerRein.getAcidTime();
+		info.maturation_time = playerRein.getType().getMaturationTime();
+		info.lore = Helper.getLore(playerRein.getType().getItem());
+		info.acid_time = playerRein.getType().getAcidTime();
 
 		synchronized(this.updatedReinforcements) {
 			this.updatedReinforcements.add(new UpdatedReinforcement(rein, true));
@@ -151,16 +146,7 @@ public class CitadelManager extends Thread implements ICitadelManager, Runnable 
 		Group group = GroupManager.getGroup(info.group_id);
 		ItemStack stack = getItemStack(info);
 
-		PlayerReinforcement rein = new PlayerReinforcement(
-				loc,
-				info.durability,
-				info.maturation_time,
-				info.acid_time,
-				group,
-				stack
-				);
-
-		rein.setInsecure(info.insecure);
+		Reinforcement rein = new Reinforcement(loc, Citadel.getInstance().getReinforcementTypeManager().getByItemStack(stack), group);
 
 		synchronized(this.updatedReinforcements) {
 			this.updatedReinforcements.add(new UpdatedReinforcement(rein, false));
@@ -170,7 +156,7 @@ public class CitadelManager extends Thread implements ICitadelManager, Runnable 
 	}
 
 	private static ItemStack getItemStack(ReinforcementInfo info) {
-		Material material = DeprecatedMethods.getMaterial(info.material_id);
+		Material material = info.material;
 		ItemStack stack = new ItemStack(material);
 
 		Helper.setLore(stack, info.lore);
@@ -238,9 +224,9 @@ public class CitadelManager extends Thread implements ICitadelManager, Runnable 
 
 			while ((updated = this.localUpdatedReinforcements.poll()) != null) {
 				if (updated.deleted) {
-					Citadel.getReinforcementManager().deleteReinforcement(updated.rein);
+					updated.rein.setHealth(0);
 				} else {
-					Citadel.getReinforcementManager().saveInitialReinforcement(updated.rein);
+					Citadel.getInstance().getReinforcementManager().putReinforcement(updated.rein);
 				}
 			}
 		} catch (Exception e) {

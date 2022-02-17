@@ -1,9 +1,10 @@
-name: ${project.name}
+name: ${name}
 main: com.aleksey.castlegates.CastleGates
-version: ${project.version}
+version: ${version}
 author: Aleksey-Terzi
+api-version: 1.18
 description: 'Drawable gates and bridges'
-softdepend: [Orebfuscator4, NameLayer, Citadel, Bastion, JukeAlert]
+softdepend: [NameLayer, Citadel, Bastion]
 commands:
   cg:
     description: Manage Castle Gates.

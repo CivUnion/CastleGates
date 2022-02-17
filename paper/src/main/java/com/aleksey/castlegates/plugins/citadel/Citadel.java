@@ -6,10 +6,9 @@ package com.aleksey.castlegates.plugins.citadel;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import vg.civcraft.mc.citadel.reinforcement.PlayerReinforcement;
-import vg.civcraft.mc.citadel.reinforcement.Reinforcement;
 
 import java.util.List;
+import vg.civcraft.mc.citadel.model.Reinforcement;
 
 public class Citadel implements ICitadel {
     private List<Player> players;
@@ -17,7 +16,7 @@ public class Citadel implements ICitadel {
     private boolean hasAccess;
     private boolean useJukeAlert;
 
-    public Citadel(List<Player> players, PlayerReinforcement playerRein, boolean hasAccess, boolean useJukeAlert) {
+    public Citadel(List<Player> players, Reinforcement playerRein, boolean hasAccess, boolean useJukeAlert) {
         this.players = players;
         this.groupName = playerRein != null ? playerRein.getGroup().getName() : null;
         this.hasAccess = hasAccess;
@@ -33,10 +32,10 @@ public class Citadel implements ICitadel {
     public boolean canAccessDoors(Location location) {
         if(!this.hasAccess) return false;
 
-        Reinforcement rein = vg.civcraft.mc.citadel.Citadel.getReinforcementManager().getReinforcement(location);
+        Reinforcement rein = vg.civcraft.mc.citadel.Citadel.getInstance().getReinforcementManager().getReinforcement(location);
 
-        return rein == null || !(rein instanceof PlayerReinforcement)
+        return rein == null || !(rein instanceof Reinforcement)
             ? this.groupName == null
-            : this.groupName != null && this.groupName.equalsIgnoreCase(((PlayerReinforcement)rein).getGroup().getName());
+            : this.groupName != null && this.groupName.equalsIgnoreCase(((Reinforcement)rein).getGroup().getName());
     }
 }
